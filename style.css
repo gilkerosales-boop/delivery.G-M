@@ -1,0 +1,482 @@
+/* Variables de Estilo Globales */
+:root {
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --bg-app: #f8fafc;
+  --card-bg: #ffffff;
+  --text-color: #1e293b;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  --success: #10b981;
+  --success-hover: #059669;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Modelo de escala adaptable: fuerza un tamaño de letra muy grande en teléfonos inteligentes */
+html {
+  font-size: 16px;
+}
+
+@media (max-width: 700px) {
+  html {
+    font-size: 20px; /* Tamaño de letra extra grande para lectura cómoda sin zoom */
+  }
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: var(--bg-app);
+  color: var(--text-color);
+  line-height: 1.5;
+  padding: 0.8rem;
+}
+
+.container {
+  max-width: 60rem;
+  margin: 0 auto;
+}
+
+/* Estilos del Contenedor de Autenticación */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 90vh;
+  padding: 1rem;
+}
+
+.auth-card {
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-color);
+}
+
+.auth-card h2 {
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-weight: 800;
+  color: var(--primary);
+  text-transform: uppercase;
+  font-size: 1.2rem;
+}
+
+/* Navegación por pestañas */
+.tabs-nav {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1.2rem;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+.tab-btn {
+  background-color: #e2e8f0;
+  border: none;
+  padding: 0.5rem 0.2rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--text-color);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+  flex: 1;
+  text-align: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.tab-btn:hover {
+  background-color: var(--border-color);
+}
+
+.tab-btn.active {
+  background-color: var(--primary);
+  color: #ffffff;
+}
+
+.tab-content {
+  display: none;
+  background-color: var(--card-bg);
+  padding: 1.2rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Formularios y elementos de control */
+.form-group {
+  margin-bottom: 1.2rem;
+}
+
+label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+  font-size: 0.95rem;
+}
+
+.form-input, select, textarea {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 1rem;
+  outline: none;
+  font-family: inherit;
+  background-color: #ffffff;
+}
+
+.form-input:focus, select:focus, textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* WhatsApp Textarea de altura cómoda */
+textarea {
+  resize: vertical;
+  min-height: 300px;
+}
+
+/* Botones */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: auto;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-success {
+  background-color: var(--success);
+  color: #ffffff;
+}
+
+.btn-success:hover {
+  background-color: var(--success-hover);
+}
+
+.btn-danger {
+  background-color: var(--danger);
+  color: #ffffff;
+}
+
+.btn-danger:hover {
+  background-color: #dc2626;
+}
+
+.btn-secondary {
+  background-color: #64748b;
+  color: #ffffff;
+}
+
+.btn-secondary:hover {
+  background-color: #475569;
+}
+
+.btn:disabled {
+  background-color: var(--border-color);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Grids de Fecha: Apilados verticalmente */
+.grid-date {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.8rem;
+  margin-bottom: 1.5rem;
+  background-color: #f1f5f9;
+  padding: 1rem;
+  border-radius: 6px;
+}
+
+.grid-debt {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  background-color: #f8fafc;
+  padding: 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+.flex-buttons {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+/* Tablas dinámicas y Scroll */
+.table-container {
+  margin-top: 1.5rem;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+}
+
+th, td {
+  border: 1px solid var(--border-color);
+  padding: 0.8rem;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+th {
+  background-color: #f1f5f9;
+  font-weight: 600;
+}
+
+.input-table {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  outline: none;
+  font-size: 1rem;
+}
+
+.input-table:focus {
+  border-color: var(--primary);
+}
+
+.input-error {
+  border-color: var(--danger) !important;
+  background-color: #fef2f2;
+}
+
+/* Mensajes Toast */
+.toast {
+  padding: 1rem 1.2rem;
+  border-radius: 6px;
+  font-weight: 600;
+  display: none;
+  font-size: 0.95rem;
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 450px;
+}
+
+.toast.success { background-color: #ecfdf5; color: #065f46; border-left: 4px solid var(--success); }
+.toast.error { background-color: #fef2f2; color: #991b1b; border-left: 4px solid var(--danger); }
+.toast.warning { background-color: #fffbeb; color: #92400e; border-left: 4px solid var(--warning); }
+
+/* Visor de facturas un 50% más alto */
+pre, #invoice-output {
+  background-color: #0f172a;
+  color: #38bdf8;
+  padding: 1rem;
+  border-radius: 8px;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.95rem;
+  white-space: pre-wrap;
+  width: 100%;
+  min-height: 400px; /* Incrementado para mejor visibilidad móvil */
+  border: none;
+  margin-top: 1.2rem;
+}
+
+/* Cargando */
+.loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--border-color);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* CONFIGURACIÓN CRÍTICA PARA LA CASILLA DE UBICACIÓN (Alineación, alto 200% y letra compactada a tamaño 8) */
+.loc-val, .hist-loc {
+  font-size: 0.8rem !important; /* Tamaño de letra óptimo */
+  min-height: 2.2rem !important; /* Altura inicial */
+  padding: 0.3rem 0.5rem !important;
+  resize: none !important; /* Deshabilita el rediseño manual */
+  overflow-y: hidden; /* Oculta la barra de scroll */
+  font-family: inherit;
+}
+
+/* ==========================================================
+   DISEÑO RESPONSIVO EXCLUSIVO PARA MÓVILES (Celulares)
+   ========================================================== */
+@media (max-width: 700px) {
+  body {
+    padding: 0.4rem;
+  }
+
+  .tabs-nav {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Rediseñado para dar espacio al nuevo botón */
+    gap: 4px;
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 1rem;
+  }
+
+  .tab-btn {
+    font-size: 0.73rem; /* Tamaño de tipografía compacto para celulares */
+    padding: 0.8rem 0.05rem;
+    border-radius: 6px;
+  }
+
+  .tab-content {
+    padding: 0.8rem;
+  }
+
+  .flex-buttons {
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .flex-buttons .btn {
+    width: 100%;
+  }
+
+  /* Reestructuración de deudas a una sola columna vertical */
+  .grid-debt {
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+  }
+
+  /* Transformación de Tablas a Bloques Verticales (Cards) */
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+
+  thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  tr {
+    border: 1px solid var(--border-color);
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    background-color: #f8fafc;
+    padding: 0.8rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  }
+
+  /* Estilo estándar para todas las filas excepto ubicación */
+  td {
+    border: none;
+    border-bottom: 1px solid #f1f5f9;
+    position: relative;
+    padding: 0.8rem 0.5rem 0.8rem 32% !important; 
+    text-align: right;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    min-height: 3rem;
+  }
+
+  td:last-child {
+    border-bottom: 0;
+  }
+
+  td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0.5rem;
+    width: 28%; 
+    text-align: left;
+    font-weight: 700;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  td > input, td > select, td > span, td > button, td > strong, td > textarea {
+    max-width: 66% !important;
+    width: 66% !important;
+  }
+
+  /* REDISEÑO EXCLUSIVO PARA LA FILA DE UBICACIÓN: SE APILA VERTICALMENTE AL 100% DE ANCHO */
+  td[data-label="Ubicación"] {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    padding-left: 0.5rem !important; 
+    padding-right: 0.5rem !important;
+    min-height: auto !important; /* Altura flexible */
+  }
+
+  td[data-label="Ubicación"]::before {
+    position: static !important;
+    width: 100% !important;
+    margin-bottom: 0.3rem !important;
+    text-align: left !important;
+  }
+
+  /* El campo de texto toma el 100% de la anchura horizontal de la tarjeta móvil */
+  td[data-label="Ubicación"] > textarea {
+    max-width: 100% !important;
+    width: 100% !important;
+    text-align: left !important;
+  }
+
+  .input-table {
+    text-align: right !important;
+    width: 100% !important;
+    font-size: 0.85rem !important; 
+    padding: 0.5rem !important; 
+  }
+}
