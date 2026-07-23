@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Registro Logístico de Entregas</title>
+  <!-- Importar estilos CSS independientes -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body onload="inicializarAplicacion()">
+
+  <div class="container">
+    <!-- Toast de Notificaciones (Flotante) -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Contenedor de Autenticación (Login/Registro) -->
+    <div id="auth-container" class="auth-container">
+      
+      <!-- Vista Iniciar Sesión -->
+      <div id="login-view" class="auth-card">
+        <h2>Iniciar Sesión</h2>
+        <div class="form-group">
+          <label for="login-usuario">Nombre de Usuario:</label>
+          <input type="text" id="login-usuario" class="form-input" placeholder="Usuario">
+        </div>
+        <div class="form-group">
+          <label for="login-clave">Clave:</label>
+          <input type="password" id="login-clave" class="form-input" placeholder="••••••••">
+        </div>
+        <div class="flex-buttons" style="flex-direction: column; width: 100%; gap: 10px;">
+          <button type="button" class="btn btn-primary" onclick="ejecutarLogin()" style="width: 100%;">Iniciar Sesión</button>
+          <button type="button" class="btn btn-secondary" onclick="mostrarVistaRegistro()" style="background: none; border: none; color: var(--primary); text-decoration: underline; padding: 0.5rem; box-shadow: none; font-size: 0.9rem;">¿No tienes cuenta? Regístrate</button>
+        </div>
+      </div>
+
+      <!-- Vista Registro -->
+      <div id="register-view" class="auth-card" style="display: none;">
+        <h2>Registrar Usuario</h2>
+        <div class="form-group">
+          <label for="reg-nombres">Nombres:</label>
+          <input type="text" id="reg-nombres" class="form-input" placeholder="Nombres">
+        </div>
+        <div class="form-group">
+          <label for="reg-apellidos">Apellidos:</label>
+          <input type="text" id="reg-apellidos" class="form-input" placeholder="Apellidos">
+        </div>
+        <div class="form-group">
+          <label for="reg-cedula">Cédula:</label>
+          <input type="text" id="reg-cedula" class="form-input" placeholder="Cédula">
+        </div>
+        <div class="form-group">
+          <label for="reg-correo">Correo Electrónico:</label>
+          <input type="email" id="reg-correo" class="form-input" placeholder="correo@ejemplo.com">
+        </div>
+        <div class="form-group">
+          <label for="reg-usuario">Nombre de Usuario:</label>
+          <input type="text" id="reg-usuario" class="form-input" placeholder="Usuario">
+        </div>
+        <div class="form-group">
+          <label for="reg-clave">Clave:</label>
+          <input type="password" id="reg-clave" class="form-input" placeholder="••••••••">
+        </div>
+        <div class="form-group">
+          <label for="reg-confirmar-clave">Confirmar Clave:</label>
+          <input type="password" id="reg-confirmar-clave" class="form-input" placeholder="••••••••">
+        </div>
+        <div class="flex-buttons" style="flex-direction: column; width: 100%; gap: 10px;">
+          <button type="button" class="btn btn-success" onclick="ejecutarRegistro()" style="width: 100%;">Registrar Cuenta</button>
+          <button type="button" class="btn btn-secondary" onclick="mostrarVistaLogin()" style="background: none; border: none; color: var(--primary); text-decoration: underline; padding: 0.5rem; box-shadow: none; font-size: 0.9rem;">¿Ya tienes cuenta? Inicia Sesión</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Contenedor Principal de la App (Oculto inicialmente) -->
+    <div id="main-app-container" class="container" style="display: none;">
+      <div class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab('registro-tab', this)">Reg. Diario</button>
+        <button class="tab-btn" onclick="switchTab('editor-tab', this)">Editor</button>
+        <button class="tab-btn" onclick="switchTab('facturacion-tab', this)">Facturas</button>
+        <button class="tab-btn" onclick="switchTab('reportes-tab', this); cargarSemanasFacturadas();">Reportes</button>
+      </div>
+
+      <!-- Contenedor Pestaña 1: Registro Diario -->
+      <div id="registro-tab" class="tab-content active">
+        <h2>Registro de Entregas Diarias</h2>
+        <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.9rem;">
+          Define el rango de fechas de la semana que estás registrando. El selector de días ocultará de forma inteligente los días ya registrados en la base de datos.
+        </p>
+
+        <!-- Selector de rango de fechas de la semana (Apilados verticalmente) -->
+        <div class="grid-date">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="reg-fecha-inicio">Fecha Inicio (Lunes):</label>
+            <input type="date" id="reg-fecha-inicio" class="form-input" onchange="cargarDiasDisponibles()">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="reg-fecha-fin">Fecha Fin (Domingo):</label>
+            <input type="date" id="reg-fecha-fin" class="form-input" onchange="cargarDiasDisponibles()">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="select-dia">Seleccionar Día de la Entrega:</label>
+          <select id="select-dia" class="form-input" style="max-width: 250px;">
+            <!-- Se rellena dinámicamente según la disponibilidad en la Base de Datos -->
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="raw-text">Pegar Mensajes de WhatsApp:</label>
+          <textarea id="raw-text" placeholder="📱 *Teléfono:* +584149122148&#10;👤 *Cliente:* FRANKLIN RODRGUES&#10;📍 *Ubicación:* Urbanización Terraza Del Ávila..."></textarea>
+        </div>
+
+        <!-- Panel de botones de procesamiento -->
+        <div class="flex-buttons">
+          <button type="button" id="btn-procesar-texto" class="btn btn-primary" onclick="procesarTextoDeWhatsapp()">Procesar Texto</button>
+        </div>
+
+        <!-- Tabla Dinámica de Registro -->
+        <div class="table-container" id="tabla-registro-container" style="display: none;">
+          <table id="tabla-registro">
+            <thead>
+              <tr>
+                <th>Día</th>
+                <th>N°</th>
+                <th>Ubicación</th>
+                <th>Costo ($)</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-registro">
+              <!-- Inserción dinámica por JavaScript -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Registro manual y acciones de guardado debajo de los registros -->
+        <div id="registro-acciones-container" style="display: none; margin-top: 15px;">
+          <div class="flex-buttons" style="margin-bottom: 12px;">
+            <button type="button" id="btn-registro-manual" class="btn btn-success" onclick="agregarFilaManual()">+ Registro Manual</button>
+          </div>
+          <div class="flex-buttons">
+            <button type="button" class="btn btn-primary" onclick="guardarTablaABBDD()">Guardar en Base de Datos</button>
+            <button type="button" class="btn btn-secondary" onclick="limpiarPantallaRegistro()">Limpiar Datos</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contenedor Pestaña 2: Historial / Editor -->
+      <div id="editor-tab" class="tab-content">
+        <h2>Desbloquear, Editar y Eliminar Registros</h2>
+        <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.9rem;">
+          Selecciona uno de los períodos semanales guardados en la base de datos para cargar registros existentes. Modifica cualquier campo directamente sobre la tabla para completarlo o corregirlo.
+        </p>
+
+        <!-- Selector de Períodos Semanales Guardados para el Editor -->
+        <div class="form-group">
+          <label for="select-semana-editor">Seleccionar Período Semanal Registrado:</label>
+          <select id="select-semana-editor" class="form-input">
+            <option value="">Cargando períodos...</option>
+          </select>
+        </div>
+        
+        <div class="flex-buttons" style="margin-bottom: 20px;">
+          <button type="button" class="btn btn-primary" onclick="buscarRegistrosHistorial()">Buscar Registros</button>
+        </div>
+
+        <!-- Tabla Dinámica de Edición -->
+        <div class="table-container" id="tabla-editor-container" style="display: none;">
+          <table id="tabla-editor">
+            <thead>
+              <tr>
+                <th>Día</th>
+                <th>N°</th>
+                <th>Ubicación</th>
+                <th>Costo ($)</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-editor">
+              <!-- Inserción dinámica por JavaScript -->
+            </tbody>
+          </table>
+          <div class="flex-buttons" style="margin-top: 15px;">
+            <button type="button" class="btn btn-primary" onclick="actualizarCambiosHistorial()">Actualizar Registros en Base de Datos</button>
+            <button type="button" class="btn btn-secondary" onclick="ocultarTablaHistorial()">Cerrar Vista</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contenedor Pestaña 3: Facturación Semanal -->
+      <div id="facturacion-tab" class="tab-content">
+        <h2>Facturación de la Semana</h2>
+        <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.9rem;">
+          Consolida las entregas que se encuentran en estado 'Pendiente' seleccionando directamente uno de los períodos semanales guardados en la base de datos.
+        </p>
+
+        <!-- Selector de Períodos Semanales Guardados -->
+        <div class="form-group">
+          <label for="select-semana-factura">Seleccionar Período Semanal Registrado:</label>
+          <select id="select-semana-factura" class="form-input">
+            <option value="">Cargando períodos...</option>
+          </select>
+        </div>
+
+        <!-- Formulario Analítico de Deudas del Operador -->
+        <h3 style="margin-bottom: 12px; font-size: 1.1rem; font-weight: 600;">Estructura de la Deuda</h3>
+        <div class="grid-debt">
+          <div>
+            <label for="deuda-factura-actual">Factura Actual ($):</label>
+            <input type="number" id="deuda-factura-actual" class="form-input" value="0.00" step="0.01" min="0" oninput="actualizarMathFactura()">
+          </div>
+          <div>
+            <label for="deuda-factura-pasada">Factura Pasada ($):</label>
+            <input type="number" id="deuda-factura-pasada" class="form-input" value="0.00" step="0.01" min="0" oninput="actualizarMathFactura()">
+          </div>
+          <div>
+            <label for="deuda-prestamos">Préstamos ($):</label>
+            <input type="number" id="deuda-prestamos" class="form-input" value="0.00" step="0.01" min="0" oninput="actualizarMathFactura()">
+          </div>
+          <div>
+            <label for="deuda-prestamos-especiales">Préstamo Esp. ($):</label>
+            <input type="number" id="deuda-prestamos-especiales" class="form-input" value="0.00" step="0.01" min="0" oninput="actualizarMathFactura()">
+          </div>
+          <div style="grid-column: 1 / -1;">
+            <label for="deuda-abona-hoy" style="color: var(--primary);">Abona Hoy ($):</label>
+            <input type="number" id="deuda-abona-hoy" class="form-input" value="0.00" step="0.01" min="0" oninput="actualizarMathFactura()" style="border-color: var(--primary);">
+          </div>
+        </div>
+
+        <div class="flex-buttons">
+          <button type="button" class="btn btn-primary" onclick="cargarFacturaSemanal()">Generar Factura de la Semana</button>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <label>Factura Generada:</label>
+          <textarea id="invoice-output" readonly placeholder="El texto consolidado aparecerá aquí al presionar el botón de generación..."></textarea>
+        </div>
+
+        <div class="flex-buttons" style="margin-top: 15px;">
+          <button type="button" id="btn-copiar" class="btn btn-secondary" onclick="copiarFacturaAlPortapapeles()" disabled>Copiar Factura</button>
+          <button type="button" id="btn-marcar-facturado" class="btn btn-danger" onclick="marcarRegistrosComoFacturados()" disabled>Marcar como Facturado</button>
+        </div>
+      </div>
+
+      <!-- Contenedor Pestaña 4: Reportes PDF (Simplificada) -->
+      <div id="reportes-tab" class="tab-content">
+        <h2>Reportes y Descarga de PDF</h2>
+        <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.9rem;">
+          Selecciona un período de facturación ya cerrado de la base de datos para generar un reporte formal e imprimirlo como archivo PDF. Las deudas se leerán automáticamente de la base de datos [1].
+        </p>
+
+        <!-- Selector de Períodos Semanales Facturados -->
+        <div class="form-group">
+          <label for="select-semana-reporte">Seleccionar Período Semanal Cerrado:</label>
+          <select id="select-semana-reporte" class="form-input">
+            <option value="">Cargando períodos...</option>
+          </select>
+        </div>
+
+        <div class="flex-buttons">
+          <button type="button" class="btn btn-primary" onclick="cargarReporteSemanal()">Generar Vista de Reporte</button>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <label>Vista Previa de Reporte:</label>
+          <textarea id="reporte-output" readonly placeholder="La vista previa del reporte cerrado aparecerá aquí al presionar el botón de generación..."></textarea>
+        </div>
+
+        <div class="flex-buttons" style="margin-top: 15px;">
+          <button type="button" id="btn-descargar-pdf" class="btn btn-success" onclick="descargarReportePDF()" disabled>Descargar en PDF</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overlay de carga global -->
+    <div class="loader-overlay" id="loader">
+      <div class="spinner"></div>
+      <p id="loader-text" style="font-weight: 600; color: var(--text-color);">Procesando solicitud...</p>
+    </div>
+  </div>
+
+  <!-- Importar scripts asíncronos independientes -->
+  <script src="script.js"></script>
+</body>
+</html>
