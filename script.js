@@ -299,6 +299,8 @@ function procesarTextoDeWhatsapp() {
   // Expresión regular de división de bloques: detecta marcas de tiempo de WhatsApp [DD/MM], emojis o saltos de línea dobles
     const blocks = rawText.split(/(?=\[\d{1,2}\/\d{1,2}.*?\]|📱|\*(?:Tel(?:é|e)fono|Tlf):\*|Tel(?:é|e)fono:|Tlf:|(?:\r?\n){2,}(?=\s*[+\d][\d\s\-()]{5,20}(?:\r?\n|$)))/gi);
 
+  const registrosExtraidos = [];
+  
   blocks.forEach(block => {
     block = block.trim();
     if (!block) return;
