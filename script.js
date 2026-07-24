@@ -419,7 +419,7 @@ function renderTablaParaAjustes(items) {
       tr.innerHTML = `
         <td data-label="Día"><strong>${item.dia}</strong></td>
         <td data-label="N°">
-        <input type="text" class="input-table tel-val" value="${item.telefono}" maxLength="3" style="width: 70px; text-align: center;">
+        <input type="text" class="input-table hist-tel tel-val" value="${item.telefono}" maxLength="3" style="width: 70px; text-align: center;">
       </td>
       <td data-label="Ubicación">
         <textarea class="input-table loc-val" oninput="ajustarAlturaTextarea(this)">${item.ubicacion}</textarea>
@@ -580,7 +580,7 @@ function renderTablaHistorial(registros) {
         </select>
       </td>
       <td data-label="N°">
-        <input type="text" class="input-table tel-val" value="${item.telefono}" maxLength="3" style="width: 70px; text-align: center;">
+        <input type="text" class="input-table hist-tel tel-val" value="${item.telefono}" maxLength="3" style="width: 70px; text-align: center;">
       </td>
       <td data-label="Ubicación">
         <textarea class="input-table hist-loc" oninput="ajustarAlturaTextarea(this)">${item.ubicacion}</textarea>
@@ -601,6 +601,68 @@ function renderTablaHistorial(registros) {
   document.getElementById('tabla-editor-container').style.display = 'block';
   inicializarAutoAlturaTextareas();
   mostrarNotificacion(`Se cargaron ${registros.length} registros listos para edición.`, 'success');
+}
+
+function actualizarCambiosHistorial() {
+  const rows = document.querySelectorAll('#tbody-editor tr');
+  if (rows.length === 0) return;
+
+  const payload = [];
+  let isValido = true;
+
+  rows.forEach(row => {
+    const id = row.getAttribute('data-id');
+    if (!id) return;
+
+    const diaEl = row.querySelector('.hist-dia');
+    const telefonoInput = row.querySelector('.hist-tel') || row.querySelector('.tel-val');
+    const ubicacionInput = row.querySelector('.hist-loc');
+    const costoInput = row.querySelector('.hist-cost');
+
+    if (!diaEl || !telefonoInput || !ubicacionInput || !costoInput) return;
+
+    const dia = diaEl.value;
+    const telefono = telefonoInput.value.trim();
+    const ubicacion = ubicacionInput.value.trim();
+    const costo = parseFloat(costoInput.value);
+
+    if (isNaN(costo) || costo < 0) {
+      costoInput.classList.add('input-error');
+      isValido = false;
+    } else {
+      costoInput.classList.remove('input-error');
+    }
+
+    payload.push({
+      id: id,
+      dia: dia,
+      telefono: telefono,
+      ubicacion: ubicacion,
+      costo: costo
+    });
+  });
+
+  if (!isValido) {
+    mostrarNotificacion('Hay campos con montos de costo inválidos.', 'error');
+    return;
+  }
+
+  setLoading(true, 'Aplicando modificaciones...');
+  callBackend("actualizarRegistrosEditados", payload)
+    .then(response => {
+      setLoading(false);
+      if (response && response.success) {
+        mostrarNotificacion('Registros actualizados exitosamente.', 'success');
+        buscarRegistrosHistorial();
+        cargarDiasDisponibles();
+      } else {
+        mostrarNotificacion('Fallo al actualizar: ' + (response.error || 'Desconocido'), 'error');
+      }
+    })
+    .catch(err => {
+      setLoading(false);
+      mostrarNotificacion('Error de conexión con la API: ' + err, "error");
+    });
 }
 
 function eliminarRegistroBD(id) {
@@ -642,7 +704,7 @@ function eliminarRegistroBD(id) {
         if (!id) return; // Saltar de forma segura si la fila no tiene ID de registro [1]
 
         const diaEl = row.querySelector('.hist-dia');
-        const telefonoInput = row.querySelector('.hist-tel');
+        const telefonoInput = row.querySelector('.hist-tel') || row.querySelector('.tel-val');
         const ubicacionInput = row.querySelector('.hist-loc');
         const costoInput = row.querySelector('.hist-cost');
 
