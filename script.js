@@ -392,8 +392,8 @@ function agregarFilaManual() {
     tr.innerHTML = `
       <td data-label="Día"><strong>${diaSeleccionado}</strong></td>
       <td data-label="N°">
-      <input type="text" class="input-table tel-val" value="" maxLength="3" style="width: 70px; text-align: center;">
-    </td>
+        <input type="text" class="input-table hist-tel tel-val" value="${item.telefono}" maxLength="3" style="width: 70px; text-align: center;">
+      </td>
     <td data-label="Ubicación">
       <textarea class="input-table loc-val" oninput="ajustarAlturaTextarea(this)"></textarea>
     </td>
