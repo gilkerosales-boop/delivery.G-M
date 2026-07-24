@@ -615,8 +615,8 @@ function actualizarCambiosHistorial() {
     if (!id) return;
 
     const diaEl = row.querySelector('.hist-dia');
-    const telefonoInput = row.querySelector('.hist-tel') || row.querySelector('.tel-val');
-    const ubicacionInput = row.querySelector('.hist-loc');
+        const telefonoInput = row.querySelector('.hist-tel') || row.querySelector('.tel-val');
+        const ubicacionInput = row.querySelector('.hist-loc');
     const costoInput = row.querySelector('.hist-cost');
 
     if (!diaEl || !telefonoInput || !ubicacionInput || !costoInput) return;
