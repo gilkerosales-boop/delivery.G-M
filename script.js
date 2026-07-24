@@ -297,7 +297,7 @@ function procesarTextoDeWhatsapp() {
   }
 
   // Expresión regular de división de bloques: detecta marcas de tiempo de WhatsApp [DD/MM], emojis o saltos de línea dobles
-    const blocks = rawText.split(/(?=\[\d{1,2}\/\d{1,2}.*?\]|📱|\*(?:Tel(?:é|e)fono|Tlf):\*|Tel(?:é|e)fono:|Tlf:|(?:\r?\n){2,}(?=\s*[+\d][\d\s\-()]{5,20}(?:\r?\n|$)))/gi);
+  const blocks = rawText.split(/(?=\[\d{1,2}\/\d{1,2}.*?\]|📱|\*(?:Tel(?:é|e)fono|Tlf):\*|Tel(?:é|e)fono:|Tlf:|(?:\r?\n){2,}(?=\s*[+\d][\d\s\-()]{5,20}(?:\r?\n|$)))/gi);
 
   const registrosExtraidos = [];
   
@@ -387,13 +387,13 @@ function agregarFilaManual() {
 
   const idUnico = tbody.children.length + "_" + Date.now();
 
-    const tr = document.createElement('tr');
-    tr.id = `fila-${idUnico}`;
-    tr.innerHTML = `
-      <td data-label="Día"><strong>${diaSeleccionado}</strong></td>
-      <td data-label="N°">
-        <input type="text" class="input-table hist-tel tel-val" value="${item.telefono}" maxLength="3" style="width: 70px; text-align: center;">
-      </td>
+  const tr = document.createElement('tr');
+  tr.id = `fila-${idUnico}`;
+  tr.innerHTML = `
+    <td data-label="Día"><strong>${diaSeleccionado}</strong></td>
+    <td data-label="N°">
+      <input type="text" class="input-table tel-val" value="" maxLength="3" style="width: 70px; text-align: center;">
+    </td>
     <td data-label="Ubicación">
       <textarea class="input-table loc-val" oninput="ajustarAlturaTextarea(this)"></textarea>
     </td>
@@ -410,16 +410,16 @@ function agregarFilaManual() {
 }
 
 function renderTablaParaAjustes(items) {
-    const tbody = document.getElementById('tbody-registro');
-    tbody.innerHTML = '';
+  const tbody = document.getElementById('tbody-registro');
+  tbody.innerHTML = '';
 
-    items.forEach((item, index) => {
-      const tr = document.createElement('tr');
-      tr.id = `fila-${index}`;
-      tr.innerHTML = `
-        <td data-label="Día"><strong>${item.dia}</strong></td>
-        <td data-label="N°">
-        <input type="text" class="input-table hist-tel tel-val" value="${item.telefono}" maxLength="3" style="width: 70px; text-align: center;">
+  items.forEach((item, index) => {
+    const tr = document.createElement('tr');
+    tr.id = `fila-${index}`;
+    tr.innerHTML = `
+      <td data-label="Día"><strong>${item.dia}</strong></td>
+      <td data-label="N°">
+        <input type="text" class="input-table tel-val" value="${item.telefono}" maxLength="3" style="width: 70px; text-align: center;">
       </td>
       <td data-label="Ubicación">
         <textarea class="input-table loc-val" oninput="ajustarAlturaTextarea(this)">${item.ubicacion}</textarea>
@@ -524,34 +524,34 @@ function limpiarPantallaRegistro() {
 }
 
 /**
-     * Consulta los registros del usuario activo para cargarlos en el Editor,
-     * enviando el texto del período directamente y manejando errores de forma visual [1]
-     */
-    function buscarRegistrosHistorial() {
-      const selectSemana = document.getElementById('select-semana-editor');
-      const periodoSeleccionado = selectSemana.value; // ej: "20-07-2026 a 26-07-2026"
+ * Consulta los registros del usuario activo para cargarlos en el Editor,
+ * enviando el texto del período directamente y manejando errores de forma visual [1]
+ */
+function buscarRegistrosHistorial() {
+  const selectSemana = document.getElementById('select-semana-editor');
+  const periodoSeleccionado = selectSemana.value; // ej: "20-07-2026 a 26-07-2026"
 
-      if (!periodoSeleccionado) {
-        mostrarNotificacion('Por favor, selecciona un período semanal registrado.', 'warning');
-        return;
+  if (!periodoSeleccionado) {
+    mostrarNotificacion('Por favor, selecciona un período semanal registrado.', 'warning');
+    return;
+  }
+
+  setLoading(true, 'Buscando registros en el rango indicado...');
+
+  callBackend("obtenerRegistrosPorRango", { periodo: periodoSeleccionado })
+    .then(response => {
+      setLoading(false);
+      if (response && response.success) {
+        renderTablaHistorial(response.registros || []);
+      } else {
+        mostrarNotificacion("❌ Error en el servidor: " + (response.error || "Fallo desconocido"), "error");
       }
-
-      setLoading(true, 'Buscando registros en el rango indicado...');
-
-      callBackend("obtenerRegistrosPorRango", { periodo: periodoSeleccionado })
-        .then(response => {
-          setLoading(false);
-          if (response && response.success) {
-            renderTablaHistorial(response.registros || []);
-          } else {
-            mostrarNotificacion("❌ Error en el servidor: " + (response.error || "Fallo desconocido"), "error");
-          }
-        })
-        .catch(err => {
-          setLoading(false);
-          mostrarNotificacion('Error de conexión con la API: ' + err, 'error');
-        });
-    }
+    })
+    .catch(err => {
+      setLoading(false);
+      mostrarNotificacion('Error de conexión con la API: ' + err, 'error');
+    });
+}
 
 function renderTablaHistorial(registros) {
   const tbody = document.getElementById('tbody-editor');
@@ -603,6 +603,33 @@ function renderTablaHistorial(registros) {
   mostrarNotificacion(`Se cargaron ${registros.length} registros listos para edición.`, 'success');
 }
 
+function eliminarRegistroBD(id) {
+  const confirmacion = confirm("¿Estás seguro de que deseas eliminar permanentemente este registro?");
+  if (!confirmacion) return;
+
+  setLoading(true, "Eliminando registro permanente...");
+  callBackend("eliminarRegistro", { id: id })
+    .then(response => {
+      setLoading(false);
+      if (response && response.success) {
+        mostrarNotificacion("Registro eliminado correctamente.", "success");
+        buscarRegistrosHistorial();
+        cargarDiasDisponibles();
+        cargarSemanasGuardadas();
+      } else {
+        mostrarNotificacion("Fallo al eliminar: " + (response.error || "Desconocido"), "error");
+      }
+    })
+    .catch(err => {
+      setLoading(false);
+      mostrarNotificacion("Error en la solicitud de eliminación: " + err, "error");
+    });
+}
+
+/**
+ * Recopila los cambios editados desde la tabla del historial y los guarda en el backend.
+ * Incluye validadores de seguridad para prevenir fallos por celdas vacías o nulas [1].
+ */
 function actualizarCambiosHistorial() {
   const rows = document.querySelectorAll('#tbody-editor tr');
   if (rows.length === 0) return;
@@ -612,13 +639,14 @@ function actualizarCambiosHistorial() {
 
   rows.forEach(row => {
     const id = row.getAttribute('data-id');
-    if (!id) return;
+    if (!id) return; // Saltar de forma segura si la fila no tiene ID de registro [1]
 
     const diaEl = row.querySelector('.hist-dia');
-        const telefonoInput = row.querySelector('.hist-tel') || row.querySelector('.tel-val');
-        const ubicacionInput = row.querySelector('.hist-loc');
+    const telefonoInput = row.querySelector('.hist-tel') || row.querySelector('.tel-val');
+    const ubicacionInput = row.querySelector('.hist-loc');
     const costoInput = row.querySelector('.hist-cost');
 
+    // Saltar de forma segura si falta alguna casilla de datos en la tarjeta móvil [1]
     if (!diaEl || !telefonoInput || !ubicacionInput || !costoInput) return;
 
     const dia = diaEl.value;
@@ -664,96 +692,6 @@ function actualizarCambiosHistorial() {
       mostrarNotificacion('Error de conexión con la API: ' + err, "error");
     });
 }
-
-function eliminarRegistroBD(id) {
-  const confirmacion = confirm("¿Estás seguro de que deseas eliminar permanentemente este registro?");
-  if (!confirmacion) return;
-
-  setLoading(true, "Eliminando registro permanente...");
-  callBackend("eliminarRegistro", { id: id })
-    .then(response => {
-      setLoading(false);
-      if (response && response.success) {
-        mostrarNotificacion("Registro eliminado correctamente.", "success");
-        buscarRegistrosHistorial();
-        cargarDiasDisponibles();
-        cargarSemanasGuardadas();
-      } else {
-        mostrarNotificacion("Fallo al eliminar: " + (response.error || "Desconocido"), "error");
-      }
-    })
-    .catch(err => {
-      setLoading(false);
-      mostrarNotificacion("Error en la solicitud de eliminación: " + err, "error");
-    });
-}
-
-/**
-     * Recopila los cambios editados desde la tabla del historial y los guarda en el backend.
-     * Incluye validadores de seguridad para prevenir fallos por celdas vacías o nulas [1].
-     */
-    function actualizarCambiosHistorial() {
-      const rows = document.querySelectorAll('#tbody-editor tr');
-      if (rows.length === 0) return;
-
-      const payload = [];
-      let isValido = true;
-
-      rows.forEach(row => {
-        const id = row.getAttribute('data-id');
-        if (!id) return; // Saltar de forma segura si la fila no tiene ID de registro [1]
-
-        const diaEl = row.querySelector('.hist-dia');
-        const telefonoInput = row.querySelector('.hist-tel') || row.querySelector('.tel-val');
-        const ubicacionInput = row.querySelector('.hist-loc');
-        const costoInput = row.querySelector('.hist-cost');
-
-        // Saltar de forma segura si falta alguna casilla de datos en la tarjeta móvil [1]
-        if (!diaEl || !telefonoInput || !ubicacionInput || !costoInput) return;
-
-        const dia = diaEl.value;
-        const telefono = telefonoInput.value.trim();
-        const ubicacion = ubicacionInput.value.trim();
-        const costo = parseFloat(costoInput.value);
-
-        if (isNaN(costo) || costo < 0) {
-          costoInput.classList.add('input-error');
-          isValido = false;
-        } else {
-          costoInput.classList.remove('input-error');
-        }
-
-        payload.push({
-          id: id,
-          dia: dia,
-          telefono: telefono,
-          ubicacion: ubicacion,
-          costo: costo
-        });
-      });
-
-      if (!isValido) {
-        mostrarNotificacion('Hay campos con montos de costo inválidos.', 'error');
-        return;
-      }
-
-      setLoading(true, 'Aplicando modificaciones...');
-      callBackend("actualizarRegistrosEditados", payload)
-        .then(response => {
-          setLoading(false);
-          if (response && response.success) {
-            mostrarNotificacion('Registros actualizados exitosamente.', 'success');
-            buscarRegistrosHistorial();
-            cargarDiasDisponibles();
-          } else {
-            mostrarNotificacion('Fallo al actualizar: ' + (response.error || 'Desconocido'), 'error');
-          }
-        })
-        .catch(err => {
-          setLoading(false);
-          mostrarNotificacion('Error de conexión con la API: ' + err, "error");
-        });
-    }
 
 function ocultarTablaHistorial() {
   document.getElementById('tbody-editor').innerHTML = '';
