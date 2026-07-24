@@ -626,62 +626,72 @@ function eliminarRegistroBD(id) {
     });
 }
 
-function actualizarCambiosHistorial() {
-  const rows = document.querySelectorAll('#tbody-editor tr');
-  if (rows.length === 0) return;
+/**
+     * Recopila los cambios editados desde la tabla del historial y los guarda en el backend.
+     * Incluye validadores de seguridad para prevenir fallos por celdas vacías o nulas [1].
+     */
+    function actualizarCambiosHistorial() {
+      const rows = document.querySelectorAll('#tbody-editor tr');
+      if (rows.length === 0) return;
 
-  const payload = [];
-  let isValido = true;
+      const payload = [];
+      let isValido = true;
 
-  rows.forEach(row => {
-    const id = row.getAttribute('data-id');
-    const dia = row.querySelector('.hist-dia').value;
-    const telefonoInput = row.querySelector('.hist-tel');
-    const ubicacionInput = row.querySelector('.hist-loc');
-    const costoInput = row.querySelector('.hist-cost');
+      rows.forEach(row => {
+        const id = row.getAttribute('data-id');
+        if (!id) return; // Saltar de forma segura si la fila no tiene ID de registro [1]
 
-    const telefono = telefonoInput.value.trim();
-    const ubicacion = ubicacionInput.value.trim();
-    const costo = parseFloat(costoInput.value);
+        const diaEl = row.querySelector('.hist-dia');
+        const telefonoInput = row.querySelector('.hist-tel');
+        const ubicacionInput = row.querySelector('.hist-loc');
+        const costoInput = row.querySelector('.hist-cost');
 
-    if (isNaN(costo) || costo < 0) {
-      costoInput.classList.add('input-error');
-      isValido = false;
-    } else {
-      costoInput.classList.remove('input-error');
-    }
+        // Saltar de forma segura si falta alguna casilla de datos en la tarjeta móvil [1]
+        if (!diaEl || !telefonoInput || !ubicacionInput || !costoInput) return;
 
-    payload.push({
-      id: id,
-      dia: dia,
-      telefono: telefono,
-      ubicacion: ubicacion,
-      costo: costo
-    });
-  });
+        const dia = diaEl.value;
+        const telefono = telefonoInput.value.trim();
+        const ubicacion = ubicacionInput.value.trim();
+        const costo = parseFloat(costoInput.value);
 
-  if (!isValido) {
-    mostrarNotificacion('Hay campos con montos de costo inválidos.', 'error');
-    return;
-  }
+        if (isNaN(costo) || costo < 0) {
+          costoInput.classList.add('input-error');
+          isValido = false;
+        } else {
+          costoInput.classList.remove('input-error');
+        }
 
-  setLoading(true, 'Aplicando modificaciones...');
-  callBackend("actualizarRegistrosEditados", payload)
-    .then(response => {
-      setLoading(false);
-      if (response && response.success) {
-        mostrarNotificacion('Registros actualizados exitosamente.', 'success');
-        buscarRegistrosHistorial();
-        cargarDiasDisponibles();
-      } else {
-        mostrarNotificacion('Fallo al actualizar: ' + (response.error || 'Desconocido'), 'error');
+        payload.push({
+          id: id,
+          dia: dia,
+          telefono: telefono,
+          ubicacion: ubicacion,
+          costo: costo
+        });
+      });
+
+      if (!isValido) {
+        mostrarNotificacion('Hay campos con montos de costo inválidos.', 'error');
+        return;
       }
-    })
-    .catch(err => {
-      setLoading(false);
-      mostrarNotificacion('Error de conexión con la API: ' + err, "error");
-    });
-}
+
+      setLoading(true, 'Aplicando modificaciones...');
+      callBackend("actualizarRegistrosEditados", payload)
+        .then(response => {
+          setLoading(false);
+          if (response && response.success) {
+            mostrarNotificacion('Registros actualizados exitosamente.', 'success');
+            buscarRegistrosHistorial();
+            cargarDiasDisponibles();
+          } else {
+            mostrarNotificacion('Fallo al actualizar: ' + (response.error || 'Desconocido'), 'error');
+          }
+        })
+        .catch(err => {
+          setLoading(false);
+          mostrarNotificacion('Error de conexión con la API: ' + err, "error");
+        });
+    }
 
 function ocultarTablaHistorial() {
   document.getElementById('tbody-editor').innerHTML = '';
