@@ -4,6 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Registro Logístico de Entregas</title>
+
+  <!-- Configuración de PWA y Manifest -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Delivery G&M">
+  <link rel="apple-touch-icon" href="icon-192.png">
+
   <!-- Importar estilos CSS independientes -->
   <link rel="stylesheet" href="style.css">
 </head>
@@ -283,6 +293,22 @@
   </div>
 
   <!-- Importar scripts asíncronos independientes -->
+  <!-- Importar scripts asíncronos independientes -->
   <script src="script.js"></script>
+
+  <!-- Registro del Service Worker para PWA -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then((reg) => {
+            console.log('Service Worker registrado con éxito. Scope:', reg.scope);
+          })
+          .catch((err) => {
+            console.error('Error al registrar el Service Worker:', err);
+          });
+      });
+    }
+  </script>
 </body>
 </html>
