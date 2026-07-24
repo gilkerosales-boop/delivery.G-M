@@ -387,11 +387,11 @@ function agregarFilaManual() {
 
   const idUnico = tbody.children.length + "_" + Date.now();
 
-  const tr = document.createElement('tr');
-  tr.id = `fila-${idUnico}`;
-  tr.innerHTML = `
-    <td data-label="Día"><strong>${diaSeleccionado}</strong></td>
-    <td data-label="N°">
+    const tr = document.createElement('tr');
+    tr.id = `fila-${idUnico}`;
+    tr.innerHTML = `
+      <td data-label="Día"><strong>${diaSeleccionado}</strong></td>
+      <td data-label="N°">
       <input type="text" class="input-table tel-val" value="" maxLength="3" style="width: 70px; text-align: center;">
     </td>
     <td data-label="Ubicación">
@@ -410,15 +410,15 @@ function agregarFilaManual() {
 }
 
 function renderTablaParaAjustes(items) {
-  const tbody = document.getElementById('tbody-registro');
-  tbody.innerHTML = '';
+    const tbody = document.getElementById('tbody-registro');
+    tbody.innerHTML = '';
 
-  items.forEach((item, index) => {
-    const tr = document.createElement('tr');
-    tr.id = `fila-${index}`;
-    tr.innerHTML = `
-      <td data-label="Día"><strong>${item.dia}</strong></td>
-      <td data-label="N°">
+    items.forEach((item, index) => {
+      const tr = document.createElement('tr');
+      tr.id = `fila-${index}`;
+      tr.innerHTML = `
+        <td data-label="Día"><strong>${item.dia}</strong></td>
+        <td data-label="N°">
         <input type="text" class="input-table tel-val" value="${item.telefono}" maxLength="3" style="width: 70px; text-align: center;">
       </td>
       <td data-label="Ubicación">
